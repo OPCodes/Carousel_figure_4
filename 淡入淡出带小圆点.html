@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+        body {
+        	margin: 0; 
+        	background: #000;
+        }
+        ul,ol {
+        	margin: 0;
+        	padding: 0;
+        	list-style: none;
+        }
+        img { 
+        	border: none;
+        }
+        #wrap {
+            margin: 40px auto;
+            padding: 40px;
+            width: 600px;
+            height: 400px;
+            background: #404040;
+            border-radius: 20px;
+        }
+        #tab { 
+        	position: relative;
+        	width: 600px;
+        	height: 400px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        #tab a{
+        	position: absolute;
+        	top: 170px;
+        	width: 60px;
+        	height: 60px;
+        	line-height:60px;
+        	border-radius: 50%;
+        	opacity: 0.4;
+        	font-size:40px;
+        	text-align: center;
+        	text-decoration: none;
+        	color: #fff;
+        	background: #ef9408;
+        	z-index: 10;
+
+        }
+        #tab a:hover { 
+        	opacity: 1;
+        }
+        #prev { 
+        	left:10px;
+        }
+        #next { 
+        	right: 10px;
+        } 
+        #list {
+        	position: absolute;
+        	left: 0;
+        	top: 0;
+            width: 600px;
+        	height: 400px;
+            border-radius: 20px;
+        } 
+        #list li {
+            position: absolute;
+            left: 0;
+            top: 0;
+        	list-style: none;
+        	width: 600px;
+        	height: 400px;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        #list li:nth-child(1){
+            z-index: 3;
+            opacity: 1;
+        }
+        #dotList {
+        	position: absolute;
+        	left: 0;
+        	bottom: 20px;
+			width: 100%;
+			height: 20px;
+			text-align: center;
+            z-index: 3;
+        }
+        #dotList li { 
+        	display: inline-block;
+        	width: 20px;
+        	height: 20px;
+        	border-radius: 50%;
+        	background: #ccc;
+        	cursor: pointer;
+        }
+        #dotList li.active { 
+        	background: #efbd00;
+        }
+	</style>
+	<script src="js/tools.js"></script>
+    <script src="js/MTween.js"></script>
+	<script>
+		window.onload = function (){
+			var tab = $("#tab");
+		 	var prev = $("#prev");
+		 	var next = $("#next");
+		 	var list = $("#list");
+		 	var dotList = $("#dotList");
+		 	var allLis = $("li",list);
+		 	var allDLis = $("li",dotList);
+            var len = allLis.length;
+            var lenDot = allDLis.length;
+            var oneLiW = parseInt(getStyle(allLis[0],"width"));
+
+            var n = 0;
+            var old = 0;
+            allDLis[n].className = "active";
+
+            run();
+            function run(){
+                timer = setTimeout(function(){
+                    timer = setInterval(function (){
+                        if( list.timer ){
+                            return;
+                        }
+                        n++;
+                        if( n > len - 1 ){
+                            n = 0;
+                        }
+                        allDLis[n].className = "active";
+                        allDLis[old].className = "";
+                        
+                        MTween(allLis[old],"opacity",1000,0,"linear");
+                        allLis[old].style.zIndex = 1;
+                        MTween(allLis[n],"opacity",1000,1,"linear");
+                        allLis[n].style.zIndex = 3;
+console.log( n, old);
+                        old = n;
+                    },2000)
+                },2000)
+            }
+
+            prev.onclick = function (){
+                if( allLis[n].timer ){
+                    return;
+                }
+                n--;
+                if( n < 0 ){
+                    n = len - 1;
+                }
+                allDLis[n].className = "active";
+                allDLis[old].className = "";
+
+                MTween(allLis[old],"opacity",1000,0,"linear");
+                allLis[old].style.zIndex = 1;
+                MTween(allLis[n],"opacity",1000,1,"linear");
+                allLis[n].style.zIndex = 3;
+
+                old = n;
+            }
+
+            next.onclick = function (){
+                if( allLis[n].timer ){
+                    return;
+                }
+                n++;
+                if( n > len - 1 ){
+                    n = 0;
+                }
+                allDLis[n].className = "active";
+                allDLis[old].className = "";
+                
+                MTween(allLis[old],"opacity",2000,0,"linear");
+                allLis[old].style.zIndex = 1;
+                MTween(allLis[n],"opacity",2000,1,"linear");
+                allLis[n].style.zIndex = 3;
+
+                old = n;
+            }
+
+            prev.onmouseover = function (){
+                clearInterval(timer);
+            }
+
+            prev.onmouseout = function (){
+                run();
+            }
+
+            next.onmouseover = function (){
+                clearInterval(timer);
+            }
+
+            next.onmouseout = function (){
+                run();
+            }
+
+            for( var i = 0; i < lenDot; i++ ){
+                allDLis[i].index = i;
+                allDLis[i].onclick = function (){
+                    if( allLis[n].timer ){
+                        return;
+                    }
+                    this.className = "active";
+                    allDLis[old].className = "";
+                    MTween(allLis[old],"opacity",1000,0,"linear");
+                    MTween(allLis[this.index],"opacity",1000,1,"linear");
+
+                    n = this.index;
+                    old = this.index;
+                }
+                allDLis[i].onmouseover = function (){
+                    clearInterval(timer);
+                }
+                allDLis[i].onmouseout = function (){
+                    run();
+                }
+            }
+
+		}
+	</script>
+</head>
+<body>
+<div id="wrap">
+    <div id="tab">
+        <a id="prev" href="javascript:void(0);"><</a>
+        <a id="next" href="javascript:void(0);">></a>
+        <ul id="list">
+            <li>
+                <img src="img/100.jpg" />
+            </li>
+            <li>
+                <img src="img/200.jpg" />
+            </li>
+            <li>
+                <img src="img/300.jpg" />
+            </li>
+            <li>
+                <img src="img/400.jpg" />
+            </li>
+            <li>
+                <img src="img/500.jpg" />
+            </li>
+        </ul>
+        <ol id="dotList">
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ol>
+    </div>
+</div>
+</body>
+</html>
